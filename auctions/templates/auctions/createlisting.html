@@ -1,0 +1,72 @@
+{% extends "auctions/layout.html" %}
+{% load widget_tweaks %}
+
+{% block title %} {{ title }}  {% endblock %}
+
+{% block body %}
+    <div class="container">
+        <form action="{% url 'createlisting' %}" method="POST" enctype="multipart/form-data" class="form-group" >
+            {% csrf_token %}
+            <div class="row row-content">
+                <label for="title" class="form-control-label">Title</label>
+                {% render_field form.title class+="form-control" name="title" autocomplete="off" %}
+                {% if form.title.errors %}
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row row-content">
+                <label for="descrition" class="form-control-label">Description</label>
+                {% render_field form.description class+="form-control" name="description" %}
+                {% if form.description.errors %}
+                    {% for error in form.description.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row row-content">
+                <label for="starting_bid" class="form-control-label">Starging Bid</label>
+                {% render_field form.starting_bid class+="form-control" name="starting_bid" %}
+                {% if form.starting_bid.errors %}
+                    {% for error in form.starting_bid.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row row-content">
+                <label for="category" class="form-control-label">Category</label>
+                {% render_field form.category class+="form-control" name="category" autocomplete="off" %}
+                {% if form.category.errors %}
+                    {% for error in form.category.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row row-content">
+                <label for="image_file" class="form-control-label">Upload Image</label>
+                {% render_field form.image_file class+="form-control" name="image_file" %}
+                {% if form.image_file.errors %}
+                    {% for error in form.image_file.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row row-content mt-3 mb-2">
+                <h5><u>OR</u></h5>
+            </div>
+            <div class="row row-content">
+                <label for="image_url" class="form-control-label">Upload Image URL</label>
+                {% render_field form.image_url class+="form-control" name="image_url" autocomplete="off" %}
+                {% if form.image_url.errors %}
+                    {% for error in form.image_url.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="row row-content mt-3">
+                <input type="submit" class="btn btn-info">
+            </div>
+        </form>
+    </div>
+{% endblock %}

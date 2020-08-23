@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}  {{ title }}  {% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        {% for category in categorylist %}
+        <div class="card mt-3" style="border:none; border-radius: 20px 20px 20px 20px;">
+           <a href="{% url 'categorywise' category.category %}"><div class="h5 card-header bg-primary text-white" style="border-radius: 20px 20px 0px 0px;">{{ category.category }}</div></a>
+            <div class="h6 card-body">
+                <div class="row row-content">
+                    {{ category.entries }} active entry/entries!
+                </div>
+            </div>
+        </div>
+        <!-- <div class="mb-4">
+            <div class="row row-content">
+                <a href="{% url 'categorywise' category.category %}">{{ category.category }}</a>
+            </div>
+            <div class="row row-content">
+                <small>{{ category.entries }} Active Listings!</small>
+            </div>
+        </div> -->
+        {% endfor %}
+    </div>
+
+{% endblock %}
+

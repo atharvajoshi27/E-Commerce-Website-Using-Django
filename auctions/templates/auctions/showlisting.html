@@ -1,0 +1,132 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %} {{ title }} {% endblock %}
+
+{% block body %}
+<div class="container">
+    {% if user.is_authenticated %}
+        {% if not listing.active %}
+            {% if listing.bid_owner_id == user.id %}
+                <div class="row row-content">
+                    <div class="alert alert-success">Congratulations! You've won the bid!</div>
+                </div>
+                {% else %}
+                <div class="row row-content">
+                    <div class="alert alert-primary">This listing is now closed!</div>
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+    <div class="row row-content mb-2">
+            <h2>Listing : {{ listing.title }}</h2>   
+    </div>
+    {% if user.is_authenticated %}
+        {% if user == listing.creator %}
+            {% if listing.active %}
+            <div class="row row-content mb-4">
+                <form action="{% url 'deactivate' listing.title %}" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="listing" value="{{ listing.id }}">
+                    <input type="submit" value="Close Listing" class="btn btn-danger btn-sm">
+                </form>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="row mb-4 mr-2">
+                <form action="{% url 'addtowatchlist' %}" method="POST" class="form-group">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{ listing.id }}" name="listing">
+                    {% if listing in user.watchlist.items.all %}
+                        <input type="hidden" value="-1" name="about">
+                        <input type="Submit" value="-Watchlist" class="form-control btn-sm btn-danger">
+                    {% else %}
+                        {% if listing.active %}
+                            <input type="hidden" value="1" name="about">
+                            <input type="Submit" value="+Watchlist" class="form-control btn-sm btn-success">
+                        {% endif %}
+                    {% endif %}
+                </form>
+            </div>
+        {% endif %}
+    {% endif %}
+        
+    <div class="row row-content mt-4 mb-4">
+        <img {% if listing.image_file %} src="{{ listing.image_file.url }}" {% else %} src="..\..\..\media\images\notlisted.png" {% endif %} alt="alternate text" style="width: 300px; height: 300px;">
+    </div>
+
+    <div class="row row-content mb-2">
+        <h5>{{ listing.description }}</h5>
+    </div>
+    
+    <div class="row row-content mb-2">
+        <h4>${{ listing.starting_bid }}</h4>
+    </div>
+    <div class="row row-content">
+        <h5><u>Details</u></h5>
+    </div>
+    <div class="row row-content">
+        <ul>
+           <li><strong>Listed by</strong> : <a href="{% url 'userlistings' listing.creator.username %}"> {{ listing.creator.username }}</a></li>
+           <li><strong>Category</strong> : <a href="{% url 'categorywise' listing.category_belongs.category %}">{% if listing.category %}{{ listing.category }}{% else %}No category listed!{% endif %}</a></li>
+           <li><strong>Created</strong> : {{ listing.time }}</li>
+        </ul>
+    </div>
+    {% if user.is_authenticated %}
+        {% if listing.active and not user == listing.creator %}
+            <div class="row row-content mb-2" id="id">
+                <form action="{% url 'placebid' %}" method="POST" class="form-group">
+                    {% csrf_token %}
+                    <div class="row row-content mb-2">
+                        <small>{{ listing.number_of_bids }} number of bid(s) so far. Your bid is the current bid.</small>
+                    </div>
+                    <div class="row mb-2">
+                        <input type="number" {% if listing.number_of_bids %} min="{{ listing.max_bid }}" {% else %} min="{{ listing.starting_bid }}" {% endif %} class="form-control" placeholder="Enter Bid" name="bid" required>
+                        <small><strong>Your bid must be greater than {% if listing.number_of_bids %} ${{ listing.max_bid }} {% else %} ${{ listing.starting_bid }} {% endif %}</strong></small>
+                    </div>
+                    <input type="hidden" value="{{ listing.id }}" name="listing">
+                    <div class="row mb-2">
+                        <input type="submit" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="row row-content mb-2" id="id">
+            <h5><u><a href="{% url 'login' %}">Log In</a></u>&nbsp;to place bid and Comment</h5>
+        </div>
+    {% endif %}
+    <div class="row row-content mb-2">    
+        <h5>Comments {{ listing.ncomments }}</h5>   
+    </div>
+    {% for comment in listing.comment_set.all %}
+        <div class="row row-content">
+            <a href="{% url 'userlistings' comment.commenter.username %}"><small>{{ comment.commenter.username }}</small></a>
+        </div>
+        <div class="row row-content">
+            <p>{{ comment.comment }}</p>
+        </div>
+    {% endfor %}
+    {% if user.is_authenticated and listing.active %}
+    <div class="row row-content">
+        <form action="{% url 'comment' %}" method="POST" class="form-group">
+            {% csrf_token %}
+            
+            <div class="row row-content mb-2">
+                <div class="col-10">
+                    <input type="text" class="form-control" placeholder="Add a public comment ...." name="comment" maxlength="200" autocomplete="off" required>
+                </div>
+                <div class="col-2">
+                    <input type="Submit" value="Add" class="btn btn-primary">   
+                </div>
+                <div class="col-12">
+                    <small><strong>Remember to keep comments respectful and follow our Community Guidelines</strong></small>
+                </div>
+            </div>
+            <input type="hidden" value="{{ listing.id }}" name="listing">
+            <div class="row mb-2">
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
